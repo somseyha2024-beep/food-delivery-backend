@@ -3,7 +3,8 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
+       strategy:
+      fail-fast: false
       matrix:
         service: [auth-service, order-service, payment-service, location-service]
     steps:
