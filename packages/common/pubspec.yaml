@@ -1,0 +1,10 @@
+name: common
+description: Shared helpers (db, jwt, http) for all microservices
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: ^3.4.0
+dependencies:
+  shelf: ^1.4.1
+  mongo_dart: ^0.10.3
+  dart_jsonwebtoken: ^2.14.0

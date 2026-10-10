@@ -1,0 +1,44 @@
+x-service: &service
+  restart: unless-stopped
+  env_file: .env
+  environment:
+    MONGO_URI: mongodb://mongo:27017/fooddelivery
+  depends_on:
+    mongo: { condition: service_healthy }
+
+services:
+  mongo:
+    image: mongo:7
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 10
+
+  auth-service:
+    <<: *service
+    build: { context: ., dockerfile: docker/Dockerfile, args: { SERVICE: auth-service } }
+
+  order-service:
+    <<: *service
+    build: { context: ., dockerfile: docker/Dockerfile, args: { SERVICE: order-service } }
+
+  payment-service:
+    <<: *service
+    build: { context: ., dockerfile: docker/Dockerfile, args: { SERVICE: payment-service } }
+    environment:
+      MONGO_URI: mongodb://mongo:27017/fooddelivery
+      ORDER_SERVICE_URL: http://order-service:8080
+
+  location-service:
+    <<: *service
+    build: { context: ., dockerfile: docker/Dockerfile, args: { SERVICE: location-service } }
+
+  gateway:
+    image: nginx:1.27-alpine
+    ports: ["8080:80"]
+    volumes: ["./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro"]
+    depends_on: [auth-service, order-service, payment-service, location-service]
+
+volumes:
+  mongo-data:
