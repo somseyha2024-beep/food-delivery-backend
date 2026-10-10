@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-       strategy:
+    strategy:
       fail-fast: false
       matrix:
         service: [auth-service, order-service, payment-service, location-service]
@@ -15,5 +15,3 @@ jobs:
         run: dart pub get && dart analyze
       - name: Docker build
         run: docker build -f docker/Dockerfile --build-arg SERVICE=${{ matrix.service }} -t ${{ matrix.service }}:ci .
-  # Deploy: push images to GHCR, then deploy to Render / Cloud Run / ECS
-  # and point MONGO_URI at MongoDB Atlas.
